@@ -1,0 +1,279 @@
+\documentclass[9pt]{beamer}
+\usetheme[faculty=fi]{fibeamer}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[
+  main=ukrainian, %% By using `czech` or `slovak` as the main locale
+                %% instead of `english`, you can typeset the
+                %% presentation in either Czech or Slovak,
+                %% respectively.
+  english, russian %% The additional keys allow foreign texts to be
+]{babel}        %% typeset as follows:
+%%
+%%   \begin{otherlanguage}{czech}   ... \end{otherlanguage}
+%%   \begin{otherlanguage}{slovak}  ... \end{otherlanguage}
+%%
+%% These macros specify information about the presentation
+\title{Криптосистеми на еліптичних кривих} %% that will be typeset on the
+%\subtitle{Presentation Subtitle}
+\subtitle{Lecture 3: $E(F_q)$}
+
+\author{Грубіян Євген Олександрович}
+
+%% These additional packages are used within the document:
+\usepackage{ragged2e}  % `\justifying` text
+\usepackage{booktabs}  % Tables
+\usepackage{tabularx}
+\usepackage{tikz}      % Diagrams
+\usetikzlibrary{calc, shapes, backgrounds}
+\usepackage{amsmath, amssymb}
+\usepackage{url}       % `\url`s
+\usepackage{listings}  % Code listings
+\usepackage{wrapfig}
+\frenchspacing
+\begin{document}
+  \frame{\maketitle}
+
+
+  \begin{darkframes}
+      
+    \section{Light Frames}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Слайд 1: Титульний слайд
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Слайд 2: План лекції
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Слайд 3: Структура групи точок над скінченним полем
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Структура групи точок}
+\begin{frame}{Структура групи \(E(\mathbb{F}_q)\)}
+  \begin{block}{Структура групи}
+    Нехай \(E/F_q\) --- еліптична крива, визначена над скінченним полем \(\mathbb{F}_q, char(F_q)=p\). Тоді група \(\mathbb{F}_q\)-раціональних точок \(E(\mathbb{F}_q)\) є скінченною абелевою групою, що ізоморфна:
+    \[
+    E(\mathbb{F}_q) \cong \mathbb{Z}/n_1\mathbb{Z} \oplus \mathbb{Z}/n_2\mathbb{Z},\quad n_2 \mid n_1.
+    \]
+  \end{block}
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item У випадку, коли одна з циклічних компонент групи тривіальна, група кривої є циклічною.
+    \item Структура залежить від властивостей кривої та характеристики поля.
+  \end{itemize}
+\end{frame}
+
+ \begin{frame}{Підгрупа \(E[n]\) (точок порядку \(n\))}
+  \begin{block}{Підгрупа \(E[n]\)}
+    Для цілого числа \(n \ge 1\) підгрупа точок порядку $n$:
+    \[
+    E[n] = \{ P \in E(\overline{F_q}) \mid nP = \mathcal{O} \},
+    \]
+  \end{block}
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item Якщо \(p \nmid n\), тоді існує канонічний ізоморфізм:
+      \[
+      E[n] \cong \mathbb{Z}/n\mathbb{Z} \oplus \mathbb{Z}/n\mathbb{Z}.
+      \]
+    \item Якщо ж \(n=p^k, char(F_q)=p\): \(E[n] \cong\ \mathbb{Z}/n\mathbb{Z} \) або \( \{\mathcal{O}\} \).
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Ординарні та суперсингулярні еліптичні криві}
+  \begin{block}{Визначення}
+    \begin{itemize}
+      \item \(E\) називається \textbf{ординарною}, якщо 
+        \(
+        E[p] \cong \mathbb{Z}/p\mathbb{Z}.
+        \)
+      \item \(E\) називається \textbf{суперсингулярною}, якщо \(E[p] = \{\mathcal{O}\}\)
+    \end{itemize}
+  \end{block}
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item Ординарні криві застосовують в класичних криптосистемах на еліптичних кривих.
+    \item Суперсингулярні криві мають особливу структуру кільця ендоморфізмів, тому їх часто застосовують в криптосистемах на базі ізогеній та білінійних спарювань.
+  \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Слайд 4: Ендоморфізми та ендоморфізм Фробеніуса
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Ендоморфізми}
+\begin{frame}{Ендоморфізми на еліптичній кривій}
+  \begin{block}{Визначення}
+    Ендоморфізм \( \varphi \) на еліптичній кривій \(E/K\) --- це раціональне відображення:
+    \[
+    \varphi: E \to E,
+    \]
+    яке є груповим гомоморфізмом, тобто $\forall P,Q \in E: \varphi(P+Q)=\varphi(P)+\varphi(Q)$. При цьому $\varphi(\mathcal{O})=\mathcal{O}$.
+  \end{block}
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item Ендоморфізми формують кільце \(\operatorname{End}(E)\) за операцією додавання $(\varphi+\psi)(P) = \varphi(P)+\psi(P)$ та композиції $(\varphi \circ \psi)(P) = \varphi(\psi(P))$ ендоморфізмів.
+    \item Серед них особливо важливим є ендоморфізм Фробеніуса.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Ендоморфізм Фробеніуса}
+  \begin{block}{Визначення Фробеніуса}
+    Нехай \(E/F_q\) --- еліптична крива, визначена над \(\mathbb{F}_q\). Ендоморфізм Фробеніуса визначається як:
+    \[
+    \pi: E \to E,\quad (x,y) \mapsto (x^q, y^q).
+    \]
+  \end{block}
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item \(\pi\) є ендоморфізмом \(E\) і елементом кільця \(\operatorname{End}(E)\).
+    \item Якщо $x,y \in F_q$ тоді $\pi$ має тривіальну дію: $\pi(x,y) = (x,y)$
+    \item Всі $F_q$-раціональні точки кривої лежать в ядрі ендоморфізму Фробеніуса: $E(F_q) = ker(1-\pi)$
+    \item Ендоморфізм Фробеніуса відіграє ключову роль у визначенні кількості $F_q$-раціональних точок на кривій: $\#E(F_q) = \# ker(1-\pi) = deg(1-\pi)$.
+  \end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Слайди 5-7: Характеристичне рівняння, теорема Хассе та доведення
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Характеристичне рівняння та теорема Хассе}
+\begin{frame}{Характеристичне рівняння Фробеніуса}
+  \begin{block}{Характеристичне рівняння}
+    Ендоморфізм Фробеніуса \(\pi\) задовольняє характеристичному рівнянню:
+    \[
+    T^2 - tT + q = 0,
+    \]
+    де
+    \(
+    t = tr(\pi) = q+1 - \#E(\mathbb{F}_q)
+    \) - слід ендоморфізму Фробеніуса, $q=deg(\pi)$
+  \end{block}
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item Будь який ендоморфізм на $E[n]$ діє як матриця із $GL_2(\mathbb{Z}/n\mathbb{Z})$
+    \item За теоремою Келі (Cayley–Hamilton) кожен оператор(матриця) задовольняє своєму характеристичному многочлену.
+    
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Власні значення ендоморфізму Фробеніуса}
+  Нехай \(\alpha\) та \(\beta\) --- корені характеристичного рівняння (власні значення оператора):
+  \[
+  T^2 - tT + q = 0.
+  \]
+  Тоді:
+  \[
+  \alpha + \beta = t \quad\text{і}\quad \alpha\beta = q.
+  \]
+  \vspace{0.3cm}
+  За теоремою Вейля (для ендоморфізмів еліптичних кривих) маємо:
+  \[
+  |\alpha| = |\beta| = \sqrt{q}.
+  \]
+  Тому, за нерівністю трикутника:
+  \[
+  |t| = |\alpha+\beta| \le |\alpha| + |\beta| = 2\sqrt{q}.
+  \]
+\end{frame}
+
+\begin{frame}{Теорема Хассе}
+  \begin{block}{Теорема Хассе}
+    Нехай \(E\) --- еліптична крива, визначена над \(\mathbb{F}_q\). Тоді:
+    \[
+    \left|\#E(\mathbb{F}_q) - (q+1)\right| \le 2\sqrt{q}.
+    \]
+  \end{block}
+  \vspace{0.3cm}
+  Оскільки \(t = q+1-\#E(\mathbb{F}_q)\), отримуємо:
+  \[
+  |t| \le 2\sqrt{q} \quad \Longrightarrow \quad \left|\#E(\mathbb{F}_q) - (q+1)\right| \le 2\sqrt{q}.
+  \]
+  Наслідок: сума квадратичних характерів (1 якщо $f(x)$ є квадратом в $F_q$, інакше -1) рівняння $y^2=f(x)$: $\sum{\chi(f(x))} = t \le 2\sqrt{q}$
+\end{frame}
+
+\begin{frame}{Поліноми подільності}
+  Нехай \(E/K: y^2 = x^3 + ax + b\) --- еліптична крива.
+  Для кожного цілого числа \(n\ge0\) визначаються \textbf{поліноми подільності} \(\psi_n(x,y)\):
+  \[
+  \forall P \in E: \psi_n(P)=0 \quad \Longleftrightarrow \quad [n]P = \mathcal{O},
+  \]
+  Поліноми подільності визначаються рекурсивно:
+  $$\begin{aligned}
+  \psi_0(x,y) &= 0, \psi_1(x,y) &= 1,\\[1mm]
+  \psi_2(x,y) &= 2y,\\[1mm]
+  \psi_3(x,y) &= 3x^4 + 6ax^2 + 12bx - a^2,\\[1mm]
+  \psi_4(x,y) &= 4y\Bigl(x^6+5ax^4+20bx^3-5a^2x^2-4abx-8b^2-a^3\Bigr).\\[1mm]
+  \psi_{2n+1}(x,y)&= \psi_{n+2}(x,y)\,\psi_n(x,y)^3 - \psi_{n-1}(x,y)\,\psi_{n+1}(x,y)^3.\\[1mm]
+  \psi_{2n}(x,y)&= \frac{\psi_n(x,y)}{2y}\Bigl(
+  \psi_{n+2}(x,y)\,\psi_{n-1}(x,y)^2 - \psi_{n-2}(x,y)\,\psi_{n+1}(x,y)^2\Bigr).
+  \end{aligned}$$
+  При цьому зазначимо, що $deg(\psi_n) = (n^2-1)/2$
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Слайди 8-9: Кількість точок на кривій та алгоритм Скуфа
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Обчислення кількості точок на кривій}
+\begin{frame}{Кількість точок на еліптичній кривій}
+  З характеристичного рівняння Фробеніуса маємо:
+  \[
+  \#E(\mathbb{F}_q) = q + 1 - t.
+  \]
+  \vspace{0.3cm}
+  \begin{itemize}
+    \item Теорема Хассе гарантує, що \(|t| \le 2\sqrt{q}\).
+    \item Отже, \(\#E(\mathbb{F}_q)\) знаходиться в інтервалі:
+      \[
+      q + 1 - 2\sqrt{q} \le \#E(\mathbb{F}_q) \le q + 1 + 2\sqrt{q}.
+      \]
+    \item Ідея обчислення кількості точок: $\forall P\in E(F_q): \pi^2(P)+[q]P = \pi([t]P)$ з характеристичного рівняння Фробеніуса.
+  \end{itemize}
+  
+\end{frame}
+
+\begin{frame}{Алгоритм Скуфа для обчислення \(\#E(\mathbb{F}_q)\)}
+  \textbf{Мета:} Обчислити \(t = q+1 - \#E(\mathbb{F}_q)\) для кривої $y^2=f(x)=x^3+ax+b$.
+  \textbf{Основні кроки:}
+  \begin{enumerate}
+    \item \textbf{Вибір малих простих чисел \(\ell\)} (так, щоб \(\ell \neq \operatorname{char}(\mathbb{F}_q)\) та добуток вибраних \(\ell\) перевищував \(4\sqrt{q}\)).
+    \item Якщо $\ell=2$ тоді слід перевірити чи існують точки другого порядку: $$t_2=\begin{cases}
+    1,deg(gcd(f(x), x^q-x))\\
+    0,\text{інакше}
+    \end{cases}
+    $$
+    \item \textbf{Обчислення \(t \mod \ell\):}  
+      Перебираємо $t=0..\ell-1$ допоки не виконається $\forall P\in E[l]: \pi_l^2(P)+[q]P = \pi_l([t]P) \bmod (\psi_l(x), y^2-f(x))$, це і буде шукане значення $t_l=t \mod \ell$
+    \item \textbf{Відновлення \(t\):}  
+      Застосовуючи Китайську теорему залишків, відновлюють \(t\) (оскільки \(|t| \le 2\sqrt{q}\), достатньо знайти \(t\) за модулем великого числа).
+    
+  \end{enumerate}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Завершальний слайд
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Кількість точок на кривій}
+  \begin{itemize}
+    \item \textbf{Обчислення \(\#E(\mathbb{F}_q)\):}  
+      Нарешті, визначають
+      \[
+      \#E(\mathbb{F}_q) = q + 1 - t.
+      \]
+    \item Алгоритм Скуфа працює за поліноміальний час: $O(log(q)^8)$ від розміру скінченого поля
+    \item Також є покращений алгоритм SEA(Schoof-Elkies-Atkin, 1990) що має складність $O(log(q)^6)$
+  \end{itemize}
+  
+\end{frame}
+
+
+
+  \end{darkframes}
+
+
+
+
+\end{document}
