@@ -1,0 +1,225 @@
+\documentclass[9pt]{beamer}
+\usetheme[faculty=fi]{fibeamer}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[
+  main=ukrainian, %% By using `czech` or `slovak` as the main locale
+                %% instead of `english`, you can typeset the
+                %% presentation in either Czech or Slovak,
+                %% respectively.
+  english, russian %% The additional keys allow foreign texts to be
+]{babel}        %% typeset as follows:
+%%
+%%   \begin{otherlanguage}{czech}   ... \end{otherlanguage}
+%%   \begin{otherlanguage}{slovak}  ... \end{otherlanguage}
+%%
+%% These macros specify information about the presentation
+\title{Криптосистеми на еліптичних кривих} %% that will be typeset on the
+%\subtitle{Presentation Subtitle}
+\subtitle{Lecture 7: Divisors' magic}
+
+\author{Грубіян Євген Олександрович}
+
+%% These additional packages are used within the document:
+\usepackage{ragged2e}  % `\justifying` text
+\usepackage{booktabs}  % Tables
+\usepackage{tabularx}
+\usepackage{tikz}      % Diagrams
+\usetikzlibrary{calc, shapes, backgrounds}
+\usepackage{amsmath, amssymb}
+\usepackage{url}       % `\url`s
+\usepackage{listings}  % Code listings
+\usepackage{wrapfig}
+\frenchspacing
+\begin{document}
+  \frame{\maketitle}
+
+
+  \begin{darkframes}
+      
+    \section{Light Frames}
+\begin{frame}{Еквівалентні дівізори}
+
+\begin{exampleblock}{Приклад}
+Покажемо що дівізори $D_1, D_2$ з прикладу нижче є еквівалентними:
+\begin{align*}
+    & P = (57, 24), Q = (25, 37), R = (17, 32), S = (42, 35) \in E/F_{61} \cap f \\
+    & E/F_{61}: y^2 = x^3 + 8x + 1, f : y = 33x^2 + 10x + 24 \\
+    & D_1 = (P ) + (Q) + (R) \in Div(E), D_2 = 4(\mathcal{O}) - (S) \in Div(E) \\
+    & (f ) = (P ) + (Q) + (R) + (S) - 4(\mathcal{O}) \\
+    &f \in F_{61}(E) \implies (f) \in Prin(E) \implies D_1 - D_2 = (f) \implies D_1 \sim D_2.
+\end{align*}
+Зазначимо що оскільки $(f) \in Prin(E)$ то $deg((f))=0$, а також $P+Q+R+S=\mathcal{O}$
+
+Як бачимо дівізори $D_1,D_2$ відрізняються на деякий головний дівізор, тому вони еквівалентні
+\end{exampleblock}
+     
+\end{frame}
+
+\begin{frame}{Еквівалентні дівізори}
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[scale=1]
+      % Координатні осі
+      \draw[->] (-2,0) -- (3,0) node[right] {\(x\)};
+      \draw[->] (0,-2) -- (0,3) node[above] {\(y\)};
+      
+      % Еліптична крива: y^2 = x^3 - x.
+      % Верхня гілка для x у [-1,0] та [1,3]
+      \draw[domain=-1:0, smooth, variable=\x, red, thick] 
+        plot ({\x}, {sqrt(\x*\x*\x - \x)});
+      \draw[domain=1:2, smooth, variable=\x, red, thick] 
+        plot ({\x}, {sqrt(\x*\x*\x - \x)});
+      % Нижня гілка для x у [-1,0] та [1,3]
+      \draw[domain=-1:0, smooth, variable=\x, red, thick] 
+        plot ({\x}, {-sqrt(\x*\x*\x - \x)});
+      \draw[domain=1:2, smooth, variable=\x, red, thick] 
+        plot ({\x}, {-sqrt(\x*\x*\x - \x)});
+      
+      % Обчислення sqrt6
+      \pgfmathsetmacro{\sqrtSix}{sqrt(6)}
+      
+      % Синя пряма: y = (\sqrt6/3)(x+1)
+      \draw[domain=-1.5:2.0, smooth, variable=\x, blue, thick] 
+        plot ({\x}, {\x*\x - 1});
+      \filldraw[white] (-1,0) circle (2pt) node[below left] {\(P\)};
+  \filldraw[white] (1,0) circle (2pt) node[below right] {\(Q\)};
+  \filldraw[white] (1.618,1.618) circle (2pt) node[below right] {\(R\)};
+  \filldraw[white] (-0.618,-0.618) circle (2pt) node[below left] {\(S\)};
+      
+    \end{tikzpicture}
+\caption{$(f) = (P) + (Q) + (R)+(S)-4(\mathcal{O})$}
+\end{figure}
+    
+\end{frame}
+\begin{frame}{Еквівалентні дівізори}
+    \begin{exampleblock}{Приклад}
+        Розглянемо еліптичну криву $E/K$
+        
+        Нехай маємо знайомий нам дівізор прямої що проходить через точки $P$, $Q$: $(l)=(P)+(Q)+(-R)-3(\mathcal{O})$, де $R=P+Q$. А також дівізор вертикалі $v: x=x_R$: $(v) = (R) + (-R) - 2(\mathcal{O})$
+
+        Обчислимо дівізор частки функцій $(l/v) = (l) - (v) = (P) + (Q)-(R)-(\mathcal{O})$, зазначимо що $(l/v) \in Prin(E)$.
+
+        Із рівності точок на кривій $R=P+Q$ отримуємо рівність дівізорів $(R)-(\mathcal{O}) = (P)-(\mathcal{O}) +
+(Q)-(\mathcal{O})-(l/v)$ що добре ілюструє згаданий ізоморфізм групи точок $E(\overline{K})$ та групи Пікарда $Pic^0(E)$: $P\to(P)-(\mathcal{O})$
+
+    Зазначимо що при цьому $(R)-(\mathcal{O}) \sim (P) +(Q)-2(\mathcal{O})$
+
+    \end{exampleblock}
+    Інтуїтивно ми можемо для будь якого <<великого>> дівізора знайти менший для деякої точки $R$, що буде еквівалентний йому.
+\end{frame}
+\begin{frame}{Еквівалентні дівізори}
+\begin{center}
+    \begin{tikzpicture}[scale=1]
+      % Координатні осі
+      \draw[->] (-2,0) -- (3,0) node[right] {\(x\)};
+      \draw[->] (0,-2) -- (0,3) node[above] {\(y\)};
+      
+      % Еліптична крива: y^2 = x^3 - x.
+      % Верхня гілка для x у [-1,0] та [1,3]
+      \draw[domain=-1:0, smooth, variable=\x, red, thick] 
+        plot ({\x}, {sqrt(\x*\x*\x - \x)});
+      \draw[domain=1:2, smooth, variable=\x, red, thick] 
+        plot ({\x}, {sqrt(\x*\x*\x - \x)});
+      % Нижня гілка для x у [-1,0] та [1,3]
+      \draw[domain=-1:0, smooth, variable=\x, red, thick] 
+        plot ({\x}, {-sqrt(\x*\x*\x - \x)});
+      \draw[domain=1:2, smooth, variable=\x, red, thick] 
+        plot ({\x}, {-sqrt(\x*\x*\x - \x)});
+      
+      % Обчислення sqrt6
+      \pgfmathsetmacro{\sqrtSix}{sqrt(6)}
+      
+      % Синя пряма: y = (\sqrt6/3)(x+1)
+      \draw[domain=-1.5:2.5, smooth, variable=\x, blue, thick] 
+        plot ({\x}, {(\sqrtSix/3)*(\x+1)});
+      
+      % Точка P = "|}
+      
+      \coordinate (P) at (-1,0);
+      \fill (P) circle (2pt) node[below left] {\(P\)};
+      
+      % Точка Q = (2, \sqrt6)
+      \coordinate (Q) at (2,{\sqrtSix});
+      \fill (Q) circle (2pt) node[above right] {\(Q\)};
+      
+      % Точка R = (-1/3, (2\sqrt6)/9) (на верхній гілці)
+      \pgfmathsetmacro{\xR}{-1/3}
+      \pgfmathsetmacro{\yR}{(2*\sqrtSix)/9}
+      \coordinate (R) at (\xR,{\yR});
+      \fill (R) circle (2pt) node[above left] {\(-R\)};
+      
+      % Точка P+Q = відображення R через горизонтальну вісь: (-1/3, - (2\sqrt6)/9)
+      \coordinate (S) at (\xR,{-\yR});
+      \fill (S) circle (2pt) node[below left] {\(R\)};
+      
+      % Провідна лінія для відображення точки R через горизонтальну вісь
+      \draw[dashed] (R) -- (S);
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Теорема Рімана Роха}
+    \begin{block}{Ефективний дівізор}
+    Це дівізор $\sum_{P\in E} n_P (P)$ для якого $\forall P \in E: n_P \ge 0$
+    \end{block}
+    \begin{block}{Ефективна частина дівізора $D$}
+         $\epsilon(D) =\sum_{P\in E} n_P (P)$, де $n_P\ge0$
+    \end{block}
+    \begin{block}{Розмір дівізора $D$}
+        $L(D) = deg(\epsilon(D))$
+    \end{block}
+    \begin{block}{Теорема Рімана-Роха (дуже інтуїтивно)}
+        Для алгебраїчної кривої $C$ роду(кількість <<дірок>> як топологічної поверхні) $g$, кожен дівізор $D \in Pic^0(C)$ еквівалентний деякому дівізору $D'$ розміру, який не перевищує $g$: $L(D') \le g$
+    \end{block}
+\end{frame}
+
+\begin{frame}{Гіпереліптичні криві}
+    \begin{block}{Гіпереліптична крива}
+        Алгебраїчна крива роду $g>1$ над полем $K$, що задається рівнянням $y^2 +h(x)y = f(x),\ deg(f) = 2g+1$
+    \end{block}
+    Теорема Рімана-Роха каже що для алгебраїчної кривої роду $g$ кожен дівізор можна <<скоротити>> до еквівалентного йому дівізора розміру не більше $g$
+    \begin{exampleblock}{Приклад}
+    Візьмемо алгебраїчну криву 2-го роду:
+        \begin{align*}
+            & C/K: y^2 = x^5 + a_4x^4 + \dots + a_0 \\
+            & \forall D \in Div^0(C) \exists D' \in Pic^0(C): D \sim D' \And D'=(P)+(Q)-2(\mathcal{O})
+        \end{align*}
+    \end{exampleblock}
+    Таким чином ми можемо ефективно працювати в групі(якобіані кривої) $Pic^0(C)$, попри те що точки кривої для $g>1$ ($g=1$ - класичний еліптичний випадок) не утворюють групу.
+\end{frame}
+
+\begin{frame}{Наслідок з теореми Рімана-Роха}
+    Для будь якої еліптичної кривої (алгебраїчної кривої роду 1) кожен дівізор можна <<скоротити>> до еквівалентного, що має розмір 1: $\forall D \in Pic^0(E): D \sim (R) - (\mathcal{O})$
+\begin{enumerate}
+    \item Нехай на вході маємо дівізор $D=(P_1) +\dots+(P_{n+1})-(n+1)(\mathcal{O}) \in Pic^0(E)$, де $P_i$ не обов'язково різні точки
+    \item За теоремою про інтерполяцію існує поліном $\ell_{n}$ степеня $n$, якому задовольняють всі $P_i$. Цей поліном перетне криву у $2n$ точках (враховуючи кратності): $P_1, \dots, P_{n+1}$ та $P'_1, \dots, P'_{n-1}$
+    \item Будуємо дівізор $(\ell_{n})=\sum_{i=1}^{n+1}(P_i) +\sum_{i=1}^{n-1}{(P'_i)} -2n(\mathcal{O}) \in Prin(E)$
+    \item Дівізор $D'=-(\sum_{i=1}^{n-1}{(P'_i)}-(n-1)(\mathcal{O}))$ буде еквівалентним до $D$
+    \item Повторюємо процедуру, на кожному кроці скорочуємо степінь полінома на 2 допоки не отримаємо еквівалентний дівізор розміру 1: $D \sim (R)-(\mathcal{O})$
+    \item Зазначимо що на останньому кроці можемо отримати дівізор $D^\sim = (P_1^\sim) + (P_2^\sim) + (P_3^\sim)-3(\mathcal{O})$ що еквівалентний $(\mathcal{O})-(Q)$ через $(l_2) = (P_1^\sim) + (P_2^\sim) + (P_3^\sim) +(Q)-4(\mathcal{O}) \in Prin(E)$, дівізор $(\mathcal{O})-(Q) \sim (-Q)-(\mathcal{O})$ через вертикаль $(v) = (Q) +(-Q)-2(\mathcal{O})$
+    
+\end{enumerate}
+
+\end{frame}
+
+\begin{frame}{Завдання}
+    \begin{enumerate}
+        \item Для еліптичної кривої $E/F_{103}: y^2 +20x+20$ знайти еквівалентний дівізор у вигляді $(R)-(\mathcal{O})$ для дівізора 
+        \begin{align*}
+            & D=(P_1) + \dots + (P_{9})-9(\mathcal{O}) \in Pic^0(E) \\
+            &P_1 = (57, 51), P_2 = (11, 52), P_3 = (96, 19), P_4 = (45, 90),\\ 
+            &P_5 = (11, 51), P_6 = (70, 83), P_7 = (61, 73), P_8 = (59, 95), P_9=(85, 76)
+        \end{align*}
+        
+
+        На кожному кроці зазначте поліном $\ell_n$ та дівізор $(\ell_n)$ що йому відповідає, а також раціональну функцію в проективній площині (для змінних $X,Z$) якій відповідає дівізор $(\ell_n)$
+    \end{enumerate}
+\end{frame}
+  \end{darkframes}
+
+
+
+
+\end{document}
