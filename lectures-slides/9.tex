@@ -1,0 +1,250 @@
+\documentclass[9pt]{beamer}
+\usetheme[faculty=fi]{fibeamer}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{algpseudocode}
+\usepackage[
+  main=ukrainian, %% By using `czech` or `slovak` as the main locale
+                %% instead of `english`, you can typeset the
+                %% presentation in either Czech or Slovak,
+                %% respectively.
+  english, russian %% The additional keys allow foreign texts to be
+]{babel}        %% typeset as follows:
+%%
+%%   \begin{otherlanguage}{czech}   ... \end{otherlanguage}
+%%   \begin{otherlanguage}{slovak}  ... \end{otherlanguage}
+%%
+%% These macros specify information about the presentation
+\title{Криптосистеми на еліптичних кривих} %% that will be typeset on the
+%\subtitle{Presentation Subtitle}
+\subtitle{Lecture 9: Pairings}
+
+\author{Грубіян Євген Олександрович}
+
+%% These additional packages are used within the document:
+\usepackage{ragged2e}  % `\justifying` text
+\usepackage{booktabs}  % Tables
+\usepackage{tabularx}
+\usepackage{tikz}      % Diagrams
+\usetikzlibrary{calc, shapes, backgrounds}
+\usepackage{amsmath, amssymb}
+\usepackage{url}       % `\url`s
+\usepackage{listings}  % Code listings
+\usepackage{wrapfig}
+\frenchspacing
+\begin{document}
+  \frame{\maketitle}
+
+
+  \begin{darkframes}
+      
+    \section{Light Frames}
+
+\begin{frame}{Функції від дівізора}
+    \begin{block}{Функція $f \in \overline{K}(E)$ від дівізора $D = \sum_{P\in E} n_P(P) \in Div(E)$}
+        Визначена як 
+        $$
+        f(D) = \prod_{P\in E} f(P)^{n_P} \in \overline{K}
+        $$
+        За умови якщо $supp(D) \cap supp((f)) = \emptyset$
+    \end{block}
+    Зазначимо що умова того що носії дівізорів $(f)$ та $D$ не перетинаються є важливою, оскільки якщо наприклад $\exists P_0 \in supp((f)) \cap supp(D)$ то $f(D)=0$ або $f(D)=\infty $ в залежності від коефіціенту біля $P_0$ в $(f)$
+    \begin{block}{Закон взаємності Вейля}
+    Якщо для ненульових $f,g \in \overline{K}(E): supp((f)) \cap supp((g)) = \emptyset $ то $$ f((g)) = g((f)) $$
+    \end{block}
+    Цей закон використовується при доведенні властивостей білінійності спарювання.
+\end{frame}
+
+\begin{frame}{Означення спарювання Вейля}
+\begin{block}{Спарювання Вейля на кривій $E/F_q$}
+    Нехай для деякого $k\ge1$, точок $P,Q \in E(F_{q^k})[r]$, дівізорів $D_P \sim (P)-(\mathcal{O}), D_Q \sim (Q) - (\mathcal{O}):supp(D_P)\cap supp(D_Q) = \emptyset$ та функцій $f,g\in\overline{F_q}(E)$ таких що $(f) =rD_P, (g) = rD_Q$ то відображення $$w_r:E(F_{q^k})[r] \times E(F_{q^k})[r] \to F_{q^k}^*$$
+    що визначене як $$w_r(P,Q) = \frac{f(D_Q)}{g(D_P)}$$ називається спарюванням Вейля точок $P,Q$. 
+\end{block}
+Це відображення є зокрема білінійним та невиродженим.
+
+Найбільш цікавий з прикладної точки зору випадок коли $k$ - степінь вкладення кривої $E/F_q$, $r$ - просте число, порядок циклічної підгрупи $F_q$-раціональних точок $r | \# E(F_q)$. Тоді $w_r:E[r] \times E[r] \to \mu_r \subset F_{q^k}^*$
+
+І як це обчислити ?
+    
+\end{frame}
+
+\begin{frame}{Функції Вейля}
+Ключовим будівельним блоком для обчислення спарювання Вейля є функції Вейля.
+\begin{block}{Функція Вейля $f_{m,P}$}
+    Така раціональна функція, що $(f_{m,P}) = m(P)-([m]P)-(m-1)(\mathcal{O}) \in Prin(E)$
+\end{block}
+  Властивості функцій Вейля:
+  \begin{itemize}
+      \item $(f_{0,P}) = 0$
+      \item $\forall P \in E[r]: (f_{r, P}) = r(P)-r(\mathcal{O})$
+      \item Нехай $\ell_{[m]P,P}$ - пряма, що проходить через точки $[m]P, P$, $v_{[m+1]P}$ - вертикаль що проходить через $[m+1]P$, тоді: $$(f_{m+1,P})-(f_{m,P}) = (P) + ([m]P)-([m+ 1]P)-(\mathcal{O}) = (\ell_{[m]P,P} / v_{[m+1]P})$$
+      Таким чином $f_{m+1,P} = f_{m,P} \frac{\ell_{[m]P,P}}{v_{[m+1]P}}$ що дозволяє ітеративно обчислювати функції Вейля
+  \end{itemize}
+
+\end{frame}
+\begin{frame}{Функції Вейля}
+  \begin{center}
+    \begin{tikzpicture}[scale=1]
+      % Координатні осі
+      \draw[->] (-2,0) -- (3,0) node[right] {\(x\)};
+      \draw[->] (0,-2) -- (0,3) node[above] {\(y\)};
+      
+      % Еліптична крива: y^2 = x^3 - x.
+      % Верхня гілка для x у [-1,0] та [1,3]
+      \draw[domain=-1:0, smooth, variable=\x, red, thick] 
+        plot ({\x}, {sqrt(\x*\x*\x - \x)});
+      \draw[domain=1:2.2, smooth, variable=\x, red, thick] 
+        plot ({\x}, {sqrt(\x*\x*\x - \x)});
+      % Нижня гілка для x у [-1,0] та [1,3]
+      \draw[domain=-1:0, smooth, variable=\x, red, thick] 
+        plot ({\x}, {-sqrt(\x*\x*\x - \x)});
+      \draw[domain=1:2.2, smooth, variable=\x, red, thick] 
+        plot ({\x}, {-sqrt(\x*\x*\x - \x)});
+      
+      % Обчислення sqrt6
+      \pgfmathsetmacro{\sqrtSix}{sqrt(6)}
+      
+      % Синя пряма: y = (\sqrt6/3)(x+1)
+      \draw[domain=-1.5:2.7, smooth, variable=\x, blue, thick] 
+        plot ({\x}, {(\sqrtSix/3)*(\x+1)});
+      
+      % Точка P = "|}
+      
+      \coordinate (P) at (-1,0);
+      \fill (P) circle (2pt) node[above left] {\(P\)};
+      
+      % Точка Q = (2, \sqrt6)
+      \coordinate (Q) at (2,{\sqrtSix});
+      \fill (Q) circle (2pt) node[below right] {\([m]P\)};
+      
+      % Точка R = (-1/3, (2\sqrt6)/9) (на верхній гілці)
+      \pgfmathsetmacro{\xR}{-1/3}
+      \pgfmathsetmacro{\yR}{(2*\sqrtSix)/9}
+      \coordinate (R) at (\xR,{\yR});
+      \fill (R) circle (2pt) node[above left] {\(-[m+1]P\)};
+      
+      % Точка P+Q = відображення R через горизонтальну вісь: (-1/3, - (2\sqrt6)/9)
+      \coordinate (S) at (\xR,{-\yR});
+      \fill (S) circle (2pt) node[below left] {\([m+1]P\)};
+      
+      % Провідна лінія для відображення точки R через горизонтальну вісь
+      \draw[smooth, yellow, thick] (-1/3, 2) -- (-1/3, -2);
+
+      \node[above] at (1,1.75) {\( \ell_{[m]P,P} \)};
+      \node[above] at (-1,1.75) {\( v_{[m+1]P} \)};
+      
+    \end{tikzpicture}
+    
+  \end{center}
+  
+\end{frame}
+
+\begin{frame}{Спарювання Вейля}
+    Можна припустити що функції Вейля корисні для визначення спарювання, оскільки функція Вейля з дівізором $(f_{r,P})=r(P)-r(\mathcal{O})$ підходить під опис функції $f$ з визначення і ми можемо визначити спарювання Вейля як $w_r(P,Q) = \frac{f_{r,P}(D_Q)}{f_{r,Q}(D_P)}$, де $D_P=(P)-(\mathcal{O}), D_Q=(Q)-(\mathcal{O})$, проте $supp(D_P) \cap supp(D_Q)=\{\mathcal{O}\}$, таким чином отримали протиріччя із визначенням.
+    
+    На щастя, це досить легко обійти, взявши деяку точку $R \notin \{\mathcal{O}, Q, -P, Q - P \}$ можна показати що $$w_r(P,Q) = \frac{f_{r,Q}(R) f_{r,P}(Q-R)}{f_{r,P}(-R)f_{r,Q}(P+R)}$$
+    Дійсно, якщо задамо $D_P = (P+R)-(R) \sim (P)-(\mathcal{O}), D_Q=(Q)-(\mathcal{O}) \implies supp(D_P)\cap supp(D_Q)=\emptyset$, $f = f_{r,P} \circ \tau, g = f_{r,Q}$, де $\tau:P\to P-R$ отримаємо наш вираз для $w_r$
+
+    Також справедливий граничний випадок $R\to\mathcal{O}$:
+    $$w_r(P,Q) = (-1)^r \frac{f_{r,P}(Q)}{f_{r,Q}(P)}$$
+\end{frame}
+
+\begin{frame}{Алгоритм Міллера}
+    Зауважимо що наведений раніше ітеративний спосіб обчислення функцій Вейля не є ефективним, оскільки має лінійну відносно $r$ складність(на практиці $r$ велике просте). Але можна зауважити що значення функції $f_{2m, P}$ можна обчислити досить легко маючи $f_{m,P}$. Дійсно:
+    \begin{align*}
+        (f^2_{m,P}) &= 2m(P)-2([m]P)-2(m-1)(\mathcal{O}) \\
+        (f_{2m,P})&= 2m(P)-([2m]P)-(2m-1)(\mathcal{O}) \\
+        (f_{2m,P})-(f^2_{m,P})&=2([m]P)-([2m]P)-(\mathcal{O})=(\frac{\ell_{[m]P,[m]P}}{v_{[2m]P}}) \\
+        f_{2m,P}&=f^2_{m,P} \cdot \frac{\ell_{[m]P,[m]P}}{v_{[2m]P}}
+    \end{align*}
+Тут $\ell_{[m]P,[m]P}$ - функція дотичної до $E$ в точці $[m]P$, а $v_{[2m]P}$ - вертикаль через точку $[2m]P$ (Перевірте самостійно).
+Таким чином ми маємо всі будівельні блоки для алгоритму в стилі експоненціювання ($DoubleAndAdd$) !
+\end{frame}
+
+\begin{frame}{Алгоритм Міллера (для дівізора)}
+\textbf{Вхід:} Точка $P\in E[r]$, дівізор $D_Q \sim (Q)-(\mathcal{O}), Q \notin \{P,\mathcal{O}\}$, бінарний розклад $r=\sum_{i=0}^{n-1} 2^i r_i$
+
+\textbf{Вихід:} Значення \(f_{r,P}(D_Q)\)
+
+\textbf{Алгоритм:}
+\begin{algorithmic}[1]
+  \State \(f \gets 1\)
+  \State \(R \gets P\)
+  \For{\(i = n-2 .. 0\)}
+    \State \(R \gets 2R\)
+    \State \(f \gets f^2 \cdot \frac{\ell_{R, R}}{v_{[2]R}}(D_Q)\) \Comment{Виражаємо $f_{2m,P}$ через $f_{m,P}$}
+    
+    \If{\(r_i = 1\)}
+    \State \(R \gets R + P\)
+      \State \(f \gets f \cdot \frac{\ell_{R, P}}{v_{R+P}}(D_Q)\) \Comment{Виражаємо $f_{m+1,P}$ через $f_{m,P}$}
+      
+    \EndIf
+  \EndFor
+  \State \Return \(f\)
+\end{algorithmic}
+
+\end{frame}
+
+\begin{frame}{Алгоритм Міллера (для точки)}
+    Зазначимо що оскільки $D_Q\sim (Q)-(\mathcal{O})$ можна представити як $D_Q=(Q+T)-(T)$ для деякої точки $T\notin \{-Q,P,\mathcal{O}\}$ то $f_{r,P}(D_Q)=\frac{f_{r,P}(Q+T)}{f_{r,P}(T)}$
+
+\textbf{Вхід:} Точки $P,Q\in E[r],  Q \notin \{P,\mathcal{O}\}$, бінарний розклад $r=\sum_{i=0}^{n-1} 2^i r_i$
+
+\textbf{Алгоритм:}
+\begin{algorithmic}[1]
+\State Обираємо деяку точку $T\notin \{-Q,P,\mathcal{O}\}$
+  \State \(f \gets 1\)
+  \State \(R \gets P\)
+  \For{\(i = n-2 .. 0\)}
+    \State \(R \gets 2R\)
+    \State \(f \gets f^2 \cdot \frac{\ell_{R, R}(Q+T) v_{[2]R}(T)}{v_{[2]R}(Q+T) \ell_{R, R}(T)} \) \Comment{Виражаємо $f_{2m,P}$ через $f_{m,P}$}
+    
+    \If{\(r_i = 1\)}
+    \State \(R \gets R + P\)
+      \State \(f \gets f \cdot \frac{\ell_{R, P}(Q+T) v_{R+P}(T)}{v_{R+P}(Q+T) \ell_{R, P}(T)}\) \Comment{Виражаємо $f_{m+1,P}$ через $f_{m,P}$}
+      
+    \EndIf
+  \EndFor
+  \State \Return \(f\)
+\end{algorithmic}
+
+\end{frame}
+
+\begin{frame}{Властивості спарювання Вейля}
+  Наведемо властивості спарювання Вейля $w_r: E[r] \times E[r] \to \mu_r$
+  \begin{enumerate}
+      \item Білінійність: \(\forall P,P',Q,Q'\in E[r]\):
+      $$
+       \begin{aligned}
+  w_r(P+P', Q) &= w_r(P, Q)\,w_r(P', Q),\\[1mm]
+  w_r(P, Q+Q') &= w_r(P, Q)\,w_r(P, Q'),
+  \end{aligned}
+  $$
+  \item Невиродженість: Якщо \(P\neq\mathcal{O}\), то існує \(Q\in E[r]\) таке, що
+  \[
+  w_r(P, Q)\neq 1.
+  \]
+  \item Взаємність $$w_r(P,Q)=w_r(Q,P)^{-1}$$
+  \item Наслідок із попереднього: $$\forall P\in E[r]: w_r(P,P)=1$$
+  \end{enumerate}
+
+  
+  
+
+\end{frame}
+
+\begin{frame}{Спарювання Тейта}
+    На практиці використовують більш <<дешевий>> варіант білінійного спарювання: спарювання Тейта, яке щоправда визначається в асиметричній манері:
+    \begin{block}{Спарювання Тейта}
+        Нехай $P \in E(F_{q^k})[r], Q\in E(F_{q^k})/rE(F_{q^k})$ - це деяка точка-представник класу еквіваленності із фактор групи $E(F_{q^k})/rE(F_{q^k})$, $f\in \overline{F_q}(E): (f) = (P) - (\mathcal{O})$, $D_Q \sim (Q)-(\mathcal{O}), supp(D_Q) \cap supp((f))=\emptyset$, тоді відображення(скорочене спарювання Тейта) 
+        $$t_w:E(F_{q^k})[r] \times E(F_{q^k})/rE(F_{q^k}) \to \mu_r \subset F^*_{q^k}$$
+        Визначене як $$ t_w(P,Q) = f(D_Q)^{(q^k-1)/r} $$
+        Є білінійним та невиродженим
+    \end{block}
+\end{frame}
+  \end{darkframes}
+
+
+
+
+\end{document}
