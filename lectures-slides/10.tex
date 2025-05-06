@@ -1,0 +1,199 @@
+\documentclass[9pt]{beamer}
+\usetheme[faculty=fi]{fibeamer}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{algpseudocode}
+\usepackage[
+  main=ukrainian, %% By using `czech` or `slovak` as the main locale
+                %% instead of `english`, you can typeset the
+                %% presentation in either Czech or Slovak,
+                %% respectively.
+  english, russian %% The additional keys allow foreign texts to be
+]{babel}        %% typeset as follows:
+%%
+%%   \begin{otherlanguage}{czech}   ... \end{otherlanguage}
+%%   \begin{otherlanguage}{slovak}  ... \end{otherlanguage}
+%%
+%% These macros specify information about the presentation
+\title{Криптосистеми на еліптичних кривих} %% that will be typeset on the
+%\subtitle{Presentation Subtitle}
+\subtitle{Lecture 10: Pairings Cryptography}
+
+\author{Грубіян Євген Олександрович}
+
+%% These additional packages are used within the document:
+\usepackage{ragged2e}  % `\justifying` text
+\usepackage{booktabs}  % Tables
+\usepackage{tabularx}
+\usepackage{tikz}      % Diagrams
+\usetikzlibrary{calc, shapes, backgrounds}
+\usepackage{amsmath, amssymb}
+\usepackage{url}       % `\url`s
+\usepackage{listings}  % Code listings
+\usepackage{wrapfig}
+\frenchspacing
+\begin{document}
+  \frame{\maketitle}
+
+
+  \begin{darkframes}
+      
+    \section{Light Frames}
+
+\section{Типи білінійних спарювань}
+
+\begin{frame}{Степінь вкладення}
+    Нам відомо що структура групи кручення: $E[n] \cong Z_n \times Z_n$ якщо $q \nmid n$. Тобто $\#E[n]=n^2$
+    
+    Нагадаємо що степінь вкладення ЕК $E/F_q, E(F_q)=r$ в поле $F_q$ - таке мінімальне значення $k$ що $r | q^k - 1$.
+
+    Нехай спарювання Вейля визначене $e: E[r] \times E[r] \to F_{q^k}^*$. 
+    \begin{block}{Теорема}
+    Якщо $k$ - степінь вкладення $E/F_q$ то $E[r] \subseteq E(F_{q^k})$. 
+    \end{block}
+    На практиці нам потрібні не тільки ефективно обчислювати значення спарювання, але й ефективно гешувати в елементи групи (обирати випадкові точки наприклад) та відображати елементи між групами. До того ж порядок груп має бути простим. Тому більш специфічно можна визначити спарювання як:
+    $$e: \mathbb{G}_1 \times \mathbb{G}_2 \to F_{q^k}^*$$
+    Де $\mathbb{G}_1, \mathbb{G}_2$ деякі підгрупи $E[r]$.
+\end{frame}
+
+\begin{frame}{Структура групи: приклад}
+\begin{columns}
+        \begin{column}{0.5\textwidth}
+        \begin{block}{Теорема}
+            $$ \#E(F_{q^k}) = q^k +1 -\alpha^k -\beta^k $$ 
+            Де $\alpha, \beta$ - корені характеристичного рівняння $x^2 -tx + q$ в $F_{q^k}$($t$ - слід ендоморфізму Фробеніуса)
+        \end{block}
+Візьмемо суперсингулярну криву $E/F_{11}:y^2=x^3+4, E(F_{11})=12, E(F_{11^2})=144$. Бачимо що $r \nmid q-1$, але $r \mid q^2-1$. тому степінь вкладення $k=2$. Таким чином $E[3] \cong Z_3 \times Z_3$ тобто $\#E[3]=9$ та ми маємо 4 циклічні підгрупи порядку 3:
+        \end{column}
+
+        \begin{column}{0.5\textwidth}
+            \begin{figure}
+        \centering
+        \includegraphics[width=1\linewidth]{resources/torsion.png}
+        \label{fig:enter-label}
+    \end{figure}
+        \end{column}
+        \end{columns}
+\end{frame}
+\begin{frame}{Вибір підгруп для спарювань}
+\begin{block}{Слід точки $P$}
+    $$Tr(P) = \sum_{i=0}^{k-1} \pi^{i} (P) = \sum_{i=0}^{k-1}(x^{q^i},y^{q^i})$$ 
+    Де $\pi:\pi((x,y))=(x^q,y^q)$ - ендоморфізм Фробеніуса.
+\end{block}
+\begin{block}{Підгрупа $\mathcal{G}_1 \subset E[r]$}
+    $$\mathcal{G}_1 = E[r] \cap ker(\pi - [1])= \{ P \in E[r] | Tr(P) \in \mathcal{G}_1 \}$$
+    Ця група співпадає із $E(F_q)$, оскільки $\forall P \in \mathcal{G}_1: Tr(P) = [k]P$.
+\end{block}
+
+\begin{block}{Підгрупа сліду 0: $\mathcal{G}_2 \subset E[r]$}
+    $$\mathcal{G}_2 = E[r] \cap ker(\pi - [q])= \{ P \in E[r] | Tr(P) = \mathcal{O}_E \} $$
+    Це єдина підгрупа в $E[r]$, для якої $\forall P \in E[r]: Tr(P)=\mathcal{O}$
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Структура підгруп}
+    \begin{block}{Анти-слід точки $P$}
+        $$aTr(P) = [k]P - Tr(P)$$
+        Зауважимо що $\forall P \in E[r]:aTr(P) \in \mathcal{G}_2$
+    \end{block}
+    \begin{block}{Теорема}
+        Нехай $P_1 \in \mathcal{G}_1, P_2 \in \mathcal{G}_2$, тоді $\forall P \in E[r] \exists i,j \in Z_q^*: P=[i]P_1 +[j]P_2$
+    \end{block}
+    Таким чином $\mathcal{G}_1$ та $\mathcal{G}_2$ свого роду утворюють базис групи $E[r]$ як <<вектороного простору розмірності 2>> (група $E[r]$ є модулем над $Z_q$).
+
+    Тому якщо в якості $\mathbb{G}_1$ взяти $\mathcal{G}_1$, а $\mathbb{G}_2 = \mathcal{G}_2$ то спарювання Вейля точно буде не виродженим: $\forall P \in \mathcal{G}_1,Q \in \mathcal{G}_2: e(P,Q) \neq 1$! Зауважимо якщо $\mathbb{G}_1 =\mathbb{G}_2 = \mathcal{G}_1$ то відображення буде виродженим за властивостями спарювання Вейля. Хоч такий вибір параметрів найбільш поширений на практиці (так званий Type 3), але такий підхід має ряд недоліків, зокрема відсутність жодного ефективно-обчислюваного відображення із $\mathcal{G}_2$ в $\mathcal{G}_1$.
+\end{frame}
+
+\begin{frame}{Діграма підгруп}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.9\linewidth]{resources/aTr.png}
+        \label{fig:enter-label}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Типи спарювань}
+    \begin{block}{Відображення розсіювання}
+        Якщо $E/F_q$ - суперсингулярна, тоді існує відображення розсіювання $\psi:E(F_q) \to E(F_{q^k})$. Зокрема якщо $k=2$ тоді $\psi (x,y)=(-x,iy)$.
+    \end{block}
+    На практиці виділяють 4 типи білінійних спарювань на еліптичних кривих. У всіх 4х типах зручно взяти $\mathbb{G}_1 = \mathcal{G}_1$. Таким чином вибір $\mathbb{G}_2$ буде визначати тип.
+      \begin{description}
+    \item[Type\,1:] $\mathbb{G}_1=\mathbb{G}_2=\mathcal{G}_1$, при чому $E/F_q$ - суперсингулярна, тобто $\#E(F_q) = q+1$. В такому випадку $e(P,Q)=e_w(P,\psi(Q))$. Основним недоліком цього підходу є ефективність, оскільки суперсингулярні криві мають як правило значно більший розмір поля для забезпечення рівня стійкості.
+    \item[Type\,2:] $\mathbb{G}_1=\mathcal{G}_1, \mathbb{G}_2$ - довільна підгрупа що не співпадає із $\mathbb{G}_1$. Осеновний недолік - неможливість ефективно гешувати в елементи $\mathbb{G}_2$, що унеможливлює застосування в ряді протоколів.
+    
+  \end{description}
+\end{frame}
+\begin{frame}{Типи спарювань}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.7\linewidth]{resources/twist.png}
+        \label{fig:enter-label}
+        \caption{$E$ та її квадратичне кручення $E'$}
+    \end{figure}
+    \begin{description}
+        \item[Type\,3:] $\mathbb{G}_1 = \mathcal{G}_1, \mathbb{G}_2=\mathcal{G}_2$. Найбільш поширений та ефективний вид спарювань (зокрема через змогу застосовувати криві кручення для прискорення). Можна ефективно гешувати в елементи $\mathbb{G}_2$ за допомогою $aTr$. Основний недолік - відсутність ефективних відображень $\mathbb{G}_2 \to \mathbb{G}_1$. 
+        \item[Type\,4:] $\mathbb{G}_1 = \mathcal{G}_1, \mathbb{G}_2 = E[r]$. Гешування в $\mathbb{G}_2$ можливе, але не настільки легке, також ефективність даного типу програє порівняно з третім
+    \end{description}
+\end{frame}
+
+\begin{frame}{Спарювання в криптографії}
+    Зазвичай спарювання застосовують в різноманітних протоколах де задача CDH(Computational Diffie-Hellman) вважається складною. 
+    
+    Також додатково вводять припущення безпеки на саме спарювання, до прикладу \textit{The fixed argument pairing inversion problem (FAPI-1)} - маючи $P \in \mathbb{G}_1,g \in F_{q^k}$ обчислити $Q \in \mathbb{G}_2$ таке що $e(P,Q)=g$.
+
+    На практиці дизайн протоколу має передбачати ефективність обчислення $e$, стійкість до DLP в $E(F_{q^k})$ зокрема із врахуванням MOV-атаки(що майже неодмінно веде до росту розміру підгрупи або степеня вкладення), такі криві називаються \textit{pairing-friendly}.
+    \begin{block}{Barreto-Naehrig curves}
+        Криві $E/F_p:y^2=x^3+b$, де $p=36x^4+36x^3+24x^2+6x+1$ - просте для деякого $x$ та відповідно підібраного генератора $F_p^*$ $b$. Тоді $r=36x^4+36x^3+18x^2+6x+1$, а степінь вкладення $k=12$. Знаменита крива BN254 задається $x=4965661367192848881, b=2$.
+    \end{block}
+\end{frame}
+\section{Перевірка квадратичних рівнянь}
+\begin{frame}{Спарювання для перевірки квадратичних рівнянь}
+  Зазначимо що перевіряти лінійні співвідношення на точках еліптичної кривої досить легко застосовуючи звичайну арифметику: тобто якщо $x_1+x_2=c$ то $[x_1]P+[x_2]P=[c]P$
+  
+  Ускладнимо задачу: нехай Аліса має переконати Боба що вона знає деякі $x_1,x_2$ що добуток $x_1x_2 = c$, але при цьому не розкриваючи значень $x_1,x_2$ Бобу. 
+  \begin{block}{Протокол перевірки квадратичності}
+      \begin{enumerate}
+          \item Аліса обирає $P \in E[r]$, обчислює $[x_1]P, [x_2]P$ та надсилає їх Бобу
+          \item Боб перевіряє $e([x_1]P, [x_2]P)=e(P,P)^c$
+      \end{enumerate}
+    Зауваження: для спрощення наведено спарювання першого типу, але нічого не заважає узагальнити протокол на довільне.
+  \end{block}
+
+  Взагалі кажучи цей протокол можна поширити на довільну арифметичну схему (QAP), тобто довести що ми коректно обчислили значення складного арифметичного виразу без розкриття його входів.
+\end{frame}
+
+\section{BLS-підпис}
+\begin{frame}{Криптосистема BLS-підпису}
+\begin{block}{Підпис BLS(Boneh–Lynn–Shacham)}
+  Сторони узгоджують параметри: спарювання $e:\mathbb{G}_1 \times \mathbb{G_2} \to \mathbb{G}_T$, генератори $G_1 \in \mathbb{G}_1, G_2 \in \mathbb{G}_2$, геш функцію $H: \mathcal{M} \to \mathbb{G}_1$
+  \begin{description}
+      \item[$KeyGen(1^\lambda) \to (sk, pk)$] $sk \gets Z_r, pk \gets [sk]G_2$
+      \item[$Sign(m) \to \sigma$] $\sigma \gets [sk]H(m) \in \mathbb{G}_1$
+      \item[$Verify(\sigma, m) \to bool$] $e(H(m),pk) =^? (\sigma, G_2)$
+  \end{description}
+  \end{block}
+  З плюсів: криптосистема підтримує можливість ефективно агрегувати та перевіряти підписи різних підписників на різні повідомлення. 
+\end{frame}
+
+\begin{frame}{Криптосистема шифрування на ідентифікаторах IBE (Boneh-Franklin)}
+    Перша криптосистема шифрування на основі ідентифікаторів із застосуванням білінійного спарювання, що запропонована в 2001р Боне та Франкліном.
+    
+    Сторони узгоджують параметри: спарювання $e:\mathbb{G}_1 \times \mathbb{G}_1 \to \mathbb{G}_T$, генератор $G_1 \in \mathbb{G}_1$, геш функцію $H_1: \{0,1\}^* \to \mathbb{G}_1, H_2: \mathbb{G}_2 \to \mathcal{M}$.
+      \begin{description}
+      \item[$KeyGen(1^\lambda) \to (mk, P_{pub})$] $mk \gets Z_q, P_{pub}=[mk]P$
+      \item[$Extract(mk, ID) \to (sk_{ID}, Q_{ID})$] $Q_{ID} = H_1(ID), sk_{ID}=[mk]Q_{ID}$
+      \item[$Encrypt(m, P_{pub}, ID) \to (U,V)$] $t \xleftarrow{R}Z_r, U \gets [t]P_1, V=M \oplus H_2(e(Q_{ID}, P_{pub})^t)$
+      \item[$Decrypt(U,V) \to M$] $M \gets V \oplus H_2(e(sk_{ID},U))$
+  \end{description}
+\end{frame}
+
+
+
+
+  \end{darkframes}
+
+
+
+
+\end{document}
