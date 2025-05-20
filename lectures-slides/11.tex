@@ -1,0 +1,482 @@
+\documentclass[9pt]{beamer}
+\usetheme[faculty=fi]{fibeamer}
+\usepackage[T2A]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{algpseudocode}
+\usepackage{tikz}              % Для малювання діаграм
+\usetikzlibrary{arrows.meta, positioning, shapes, calc} % TikZ бібліотеки
+\usepackage[
+  main=ukrainian, %% By using `czech` or `slovak` as the main locale
+                %% instead of `english`, you can typeset the
+                %% presentation in either Czech or Slovak,
+                %% respectively.
+  english, russian %% The additional keys allow foreign texts to be
+]{babel}        %% typeset as follows:
+%%
+%%   \begin{otherlanguage}{czech}   ... \end{otherlanguage}
+%%   \begin{otherlanguage}{slovak}  ... \end{otherlanguage}
+%%
+%% These macros specify information about the presentation
+\title{Криптосистеми на еліптичних кривих} %% that will be typeset on the
+%\subtitle{Presentation Subtitle}
+\subtitle{Lecture 11: Isogenies}
+
+\author{Грубіян Євген Олександрович}
+
+%% These additional packages are used within the document:
+\usepackage{ragged2e}  % `\justifying` text
+\usepackage{booktabs}  % Tables
+\usepackage{tabularx}
+\usepackage{tikz}      % Diagrams
+\usetikzlibrary{calc, shapes, backgrounds}
+\usepackage{amsmath, amssymb}
+\usepackage{url}       % `\url`s
+\usepackage{listings}  % Code listings
+\usepackage{wrapfig}
+\frenchspacing
+\begin{document}
+  \frame{\maketitle}
+
+
+  \begin{darkframes}
+      
+    \section{Light Frames}
+
+
+% =============================================
+\section{Поняття ізогенії}
+% =============================================
+
+% ---------------------------------------------
+
+\begin{frame}{Поняття ізогенії}
+  \frametitle{Поняття ізогенії}
+  \begin{definition}
+    Нехай $E_1$ та $E_2$ - еліптичні криві над полем $K$. \textbf{Ізогенія} $\phi: E_1 \to E_2$ - це скінченний морфізм кривих, що є також груповим гомоморфізмом, тобто $\phi(P+Q) = \phi(P) + \phi(Q)$ для всіх $P, Q \in E_1(\bar{K})$
+  \end{definition}
+  \begin{itemize}
+    \item Якщо $\phi$ не нульовий морфізм (тобто не відображає всі точки в $\mathcal{O}_{E_2}$), то $\phi$ є сюр'єктивним відображенням.
+    \item \textbf{Ядро ізогенії}: $\ker(\phi) = \{ P \in E_1(\bar{K}) \mid \phi(P) = \mathcal{O}_{E_2} \}$. Ядро завжди є скінченною підгрупою $E_1$.
+    \item \textbf{Степінь ізогенії} $deg(\phi)$:
+      \begin{itemize}
+        \item Якщо $\phi$ сепарабельна, $deg(\phi) = |\ker(\phi)|$.
+        \item Нульовий морфізм має степінь 0.
+      \end{itemize}
+    \item Якщо існує ненульова ізогенія $\phi: E_1 \to E_2$, криві $E_1$ та $E_2$ називаються \textbf{ізогенними}.
+    \item Існує \textbf{дуальна ізогенія} $\hat{\phi}: E_2 \to E_1$ така, що $\hat{\phi} \circ \phi = [ deg(\phi) ]_{E_1}$ та $\phi \circ \hat{\phi} = [ deg(\phi) ]_{E_2}$, де $[m]$ - множення на $m$. Має той самий степінь: $deg(\hat{\phi}) = deg(\phi)$.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Теорема Тейта}
+    \begin{block}{Теорема Тейта}
+        Еліптичні криві $E/\mathbb{F}_q$ та $E'/\mathbb{F}_q$ є ізогенними тоді і тільки тоді коли $\#E(\mathbb{F}_q) = \#E'(\mathbb{F}_q)$
+    \end{block}
+    \begin{block}{Ізогенії суперсингулярних кривих}
+        Якщо $E/\mathbb{F}_p$ - суперсингулярна, тоді $j(E)$ визначений в $\mathbb{F}_{p^2}$
+    \end{block}
+    Суперсингуляні криві мають ще одну дуже важливу особливість - кільце ендоморфізмів кривої $E/\mathbb{F}_q$: $\mathsf{End}(E)$ ізоморфне деякому ідеалу в алгебрі кватерніонів, тобто поза скалярним добутком $[m]:P \mapsto [m]P$ та ендоморфізмом Фробеніуса $\pi_q:(x,y) \mapsto(x^q,y^q)$ існують ще деякі 2 нетривіальні ендоморфізми(<<розмірність алгебри кватерніонів>> - 4). Тоді як в ординарному випадку $\pi_q,[m]$ - всі лінійно незалежні ендоморфізми що породжують $\mathsf{End}(E)$
+\end{frame}
+
+\begin{frame}{Приклади ізогеній}
+  \frametitle{Приклади ізогеній}
+  \begin{itemize}
+    \item \textbf{Множення на ціле число $[m]$:}
+      \begin{itemize}
+        \item Для будь-якого цілого $m \neq 0$, відображення $\phi = [m]: E \to E$, що визначається як $P \mapsto P + \dots + P$ ($m$ разів), є ізогенією (ендоморфізмом).
+        \item $\ker([m]) = E[m]$ - група точок $m$-кручення.
+        \item $\deg([m]) = m^2$.
+      \end{itemize}
+    \item \textbf{Ендоморфізм Фробеніуса $\pi_q$ (над $\mathbb{F}_q$):}
+      \begin{itemize}
+        \item Для $E$ над $\mathbb{F}_q$, відображення $\pi_q: (x, y) \mapsto (x^q, y^q)$ є ендоморфізмом.
+        \item $\ker(\pi_q - [1])$ = $E(\mathbb{F}_q)$.
+        \item $\deg(\pi_q) = q$.
+        \item $\pi_q$ є чисто несепарабельним.
+      \end{itemize}
+    \item \textbf{Ізогенія факторизації за підгрупою $E \to E/G$:}
+      \begin{itemize}
+        \item Нехай $G$ - скінченна підгрупа $E$. Існує (з точністю до ізоморфізму) єдина еліптична крива $E'$ та сепарабельна ізогенія $\phi: E \to E'$ така, що $\ker(\phi) = G$.
+        \item Криву $E'$ позначають як $E/G$.
+        \item $\deg(\phi) = |G|$.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Обчислення ізогеній: Формули Велу}
+  \frametitle{Обчислення ізогеній: Формули Велу (Vélu)}
+     Формули Велу (1971) надають явний алгоритм для обчислення ізогенії $\phi: E \to E/G$ та рівняння кривої $E/G$, коли задано криву $E$ та її скінченну підгрупу $G$.
+    \begin{block}{Формули Велу}
+        Нехай $G \subset E(\overline{\mathbb{F}_q})$ - підгрупа $E$. $E/\mathbb{F}_q: y^2=x^3 + ax +b$, $(E/G)/\mathbb{F}_q: y^2=x^3 + a'x +b'$ - еліптичні криві із сепарабельною ізогенією $\phi: E \to E/G$.
+    \begin{align*} \phi(Q) &=( x(Q) + \sum_{P \in G \setminus \{\mathcal{O}\}} \left( x(Q+P) - x(P) \right), y(Q) + \sum_{P \in G \setminus \{\mathcal{O}\}} \left( y(Q+P) - y(P) \right) \\
+    a'&=a-5\sum_{P \in G \setminus \{ \mathcal{O} \}} (3x(P)^2 + a), \quad b'= b-7\sum_{P \in G \setminus \{ \mathcal{O} \}} (5x(P)^3 + 3ax(P)+b)
+    \end{align*}
+    де $x(P)$, $y(P)$ - координати точки $P$.
+    \end{block}
+    % TODO: Навести конкретний приклад для G порядку 2 або 3, якщо дозволяє час/простір.
+    \textbf{Важливо:} Формули Велу застосовні для будь-якої скінченної підгрупи $G$, але обчислення стають складними при зростанні $|G|$, тому зручно обчислювати ізогенії гладких порядків $|G|=l^e$ ітеративно
+\end{frame}
+
+\begin{frame}{Граф суперсингулярних $l$-ізогеній}
+  \frametitle{Граф суперсингулярних $l$-ізогеній}
+  Важливим об'єктом у сучасній криптографії на основі ізогеній є граф суперсингулярних ізогеній.
+
+  \begin{itemize}
+    \item \textbf{Вершини:} Множина класів ізоморфізму суперсингулярних еліптичних кривих, визначених над скінченним полем $\mathbb{F}_{p^2}$. Кожен клас ідентифікується своїм $j$-інваріантом. Кількість таких класів приблизно $p/12$.
+    \item \textbf{Ребра:} Ізогенії малого простого порядку $l$ (наприклад, $l=2$ або $l=3$), що з'єднують ці криві. Якщо існує $l$-ізогенія $\phi: E_1 \to E_2$, то існує і дуальна $l$-ізогенія $\hat{\phi}: E_2 \to E_1$.
+  \end{itemize}
+
+  \textbf{Властивості графу:}
+  \begin{itemize}
+    \item \textbf{Зв'язність:} наслідок теореми Тейта.
+    \item \textbf{Регулярність:} Граф є $(l+1)$-регулярним ($l \neq p$)
+    \item \textbf{Експандер (Expander graph):} Для більшості параметрів $p$ та $l$ ці графи є експандерами. Це означає, що вони <<добре перемішані>>, і випадкові блукання швидко покривають граф.
+    \item \textbf{Великий розмір:} Кількість вершин значна, що ускладнює повний перебір в задачі пошуку шляху(ізогенії) між двома вершинами (кривими)
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Приклад: Локальна структура графу 3-ізогеній}
+  \frametitle{Приклад: Локальна структура графу 3-ізогеній}
+  \begin{center}
+  \begin{tikzpicture}[
+    scale=0.7, transform shape,
+    curve_node/.style={circle, draw, thick, minimum size=25pt, inner sep=0pt},
+    edge_label/.style={font=\scriptsize, midway, inner sep=1pt}
+  ]
+    % Central curve
+    \node[curve_node] (E0) at (0,0) {$E_0$};
+
+    % First level of 3-isogenous curves from E0
+    \node[curve_node] (E1) at (-3,2.5) {$E_1$};
+    \node[curve_node] (E2) at (3,2.5) {$E_2$};
+    \node[curve_node] (E3) at (-3,-2.5) {$E_3$};
+    \node[curve_node] (E4) at (3,-2.5) {$E_4$};
+
+    \draw[-{Latex[length=2mm, width=1.5mm]}, thick] (E0) -- node[edge_label, sloped, above] {$\phi_1 (l=3)$} (E1);
+    \draw[-{Latex[length=2mm, width=1.5mm]}, thick] (E0) -- node[edge_label, sloped, above] {$\phi_2 (l=3)$} (E2);
+    \draw[-{Latex[length=2mm, width=1.5mm]}, thick] (E0) -- node[edge_label, sloped, below] {$\phi_3 (l=3)$} (E3);
+    \draw[-{Latex[length=2mm, width=1.5mm]}, thick] (E0) -- node[edge_label, sloped, below] {$\phi_4 (l=3)$} (E4);
+
+    % Second level of 3-isogenous curves from E1
+    % One isogeny goes back to E0 (dual of phi1)
+    \draw[-{Latex[length=2mm, width=1.5mm]}, thick, bend right=15] (E1) -- node[edge_label, sloped, below] {$\hat{\phi}_1 (l=3)$} (E0);
+
+    % Other isogenies from E1
+    \node[curve_node] (E11) at (-6,4) {$E_{11}$};
+    \node[curve_node] (E12) at (-4.5,5) {$E_{12}$}; % Adjusted position for clarity
+    \node[curve_node] (E13) at (-1.5,5) {$E_{13}$}; % Adjusted position for clarity
+
+    \draw[-{Latex[length=2mm, width=1.5mm]}, thick] (E1) -- node[edge_label, sloped, above] {$\psi_1 (l=3)$} (E11);
+    \draw[-{Latex[length=2mm, width=1.5mm]}, thick] (E1) -- node[edge_label, sloped, above] {$\psi_2 (l=3)$} (E12);
+    \draw[-{Latex[length=2mm, width=1.5mm]}, thick] (E1) -- node[edge_label, sloped, above] {$\psi_3 (l=3)$} (E13);
+
+    % Indication of continuation for other nodes
+    \node[font=\Large] at ($(E2)+(1,0.5)$) {\ldots};
+    \node[font=\Large] at ($(E3)+(1,-0.5)$) {\ldots};
+    \node[font=\Large] at ($(E4)+(-1,-0.5)$) {\ldots};
+    
+    \node[below=3cm of E0, text width=10cm, align=center, font=\small]
+    {Крива $E_0$ має 4 різні $3$-ізогенії ($\phi_1, \phi_2, \phi_3, \phi_4$) до кривих $E_1, E_2, E_3, E_4$.
+    Крива $E_1$ також має 4 різні $3$-ізогенії: одна ($\hat{\phi}_1$) є дуальною до $\phi_1$ і веде назад до $E_0$,
+    а інші ($\psi_1, \psi_2, \psi_3$) ведуть до нових кривих $E_{11}, E_{12}, E_{13}$.
+    Аналогічна структура продовжується для всіх вершин графу.};
+
+  \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% =============================================
+\section{Складні задачі та криптографія}
+% =============================================
+
+\begin{frame}{Складні обчислювальні задачі}
+  \frametitle{Складні обчислювальні задачі на основі ізогеній}
+  Припускається, що наступні задачі є обчислювально складними (в тому числі для квантових комп'ютерів):
+
+  \begin{itemize}
+    \item \textbf{Задача знаходження ізогенії (Isogeny Finding Problem):}
+      Дано дві ізогенні еліптичні криві $E_1, E_2$. Знайти явну ізогенію $\phi: E_1 \to E_2$.
+    \item \textbf{Задача обчислення ендоморфного кільця (Endomorphism Ring Computation):}
+      Дано еліптичну криву $E$. Обчислити її кільце ендоморфізмів $\text{End}(E)$.
+    \item \textbf{Задача обчислення шляху в графі ізогеній (Supersingular Isogeny Path Problem):}
+      Дано дві суперсингулярні еліптичні криві $E_0, E_1$ та максимальний степінь $d$. Знайти послідовність ізогеній малих степенів $\phi_1, \dots, \phi_k$, що сполучає $E_0$ та $E_1$, де $deg(\phi_i) \le d$.
+    \item \textbf{Суперсингулярна задача Діффі-Хеллмана (CSIDH/SSIDH Problem):}
+      Дано суперсингулярну криву $E_0$ та образи $E_A = \phi_A(E_0)$, $E_B = \phi_B(E_0)$, де $\phi_A, \phi_B$ - невідомі (секретні) ізогенії з певними властивостями. Обчислити $j$-інваріант спільної кривої $E_{AB} \cong \phi_B(E_A) \cong \phi_A(E_B)$. (Примітка: задача для SIDH виявилася легшою через додаткові точки).
+  \end{itemize}
+  Ці задачі є основою для побудови постквантових криптосистем.
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Криптографія на основі ізогеній}
+  \frametitle{Криптографія на основі ізогеній}
+  \begin{itemize}
+    \item \textbf{Мотивація:} Пошук криптографічних систем, стійких до атак з використанням квантових комп'ютерів (постквантова криптографія, PQC).
+    \item Алгоритм Шора (квантовий) ефективно розв'язує задачі факторизації та дискретного логарифмування (включаючи еліптичні криві), що робить RSA, DH, ECDH вразливими.
+    \item Задачі, пов'язані з ізогеніями (особливо на суперсингулярних кривих), вважаються складними навіть для квантових комп'ютерів (хоча конкретні реалізації, як SIDH, можуть мати вразливості).
+    \item \textbf{Переваги (потенційні):}
+      \begin{itemize}
+        \item Стійкість до квантових атак (для певних задач).
+        \item Відносно малі розміри ключів та шифротекстів порівняно з іншими PQC кандидатами (наприклад, на основі решіток або кодів).
+      \end{itemize}
+    \item \textbf{Недоліки/Виклики:}
+      \begin{itemize}
+        \item Вища обчислювальна складність порівняно з класичною ECC.
+        \item Менш досліджена безпека, недавні атаки на основні протоколи (SIDH).
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+% =============================================
+\section{Протокол SIDH}
+% =============================================
+\subsection{Налаштування та Ідея} % Додано підсекцію для кращої структури TOC
+
+\begin{frame}{Протокол SIDH: Налаштування}
+  \frametitle{Протокол SIDH: Налаштування (Setup)}
+  \textbf{Публічні параметри:}
+  \begin{itemize}
+    \item Велике просте число $p$ спеціального вигляду: $p = l_A^{e_A} l_B^{e_B} f \pm 1$, де $l_A, l_B$ - малі різні прості числа, $e_A, e_B$ - великі показники, $f$ - малий кофактор.
+    \item Поле $\mathbb{F}_{p^2}$.
+    \item Стартова суперсингулярна еліптична крива $E_0$, визначена над $\mathbb{F}_{p^2}$. Структура групи: $E(\mathbb{F}_{p^2}) \cong (\mathbb{Z}/l_A^{e_A}\mathbb{Z})^2 \oplus (\mathbb{Z}/l_B^{e_B}\mathbb{Z})^2 \oplus (\mathbb{Z} / f\mathbb{Z})^2$
+    \item Базисні точки для підгруп кручення:
+      \begin{itemize}
+          \item $\{P_A, Q_A\}$ - базис для $E_0[l_A^{e_A}] = \{ P \in E_0(\mathbb{F}_{p^2}) \mid [l_A^{e_A}]P = \mathcal{O} \}$.
+          \item $\{P_B, Q_B\}$ - базис для $E_0[l_B^{e_B}] = \{ P \in E_0(\mathbb{F}_{p^2}) \mid [l_B^{e_B}]P = \mathcal{O} \}$.
+      \end{itemize}
+      Ці параметри є спільними та відомими всім учасникам.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Протокол SIDH: Ідея обміну ключами}
+ \frametitle{Протокол SIDH: Ідея обміну ключами}
+  \begin{itemize}
+      \item \textbf{Мета:} Аліса та Боб хочуть встановити спільний секретний ключ.
+      \item \textbf{Секрети:}
+          \item Аліса обирає секретну підгрупу $G_A \subset E_0[l_A^{e_A}]$ порядку $l_A^{e_A}$.
+          \item Боб обирає секретну підгрупу $G_B \subset E_0[l_B^{e_B}]$ порядку $l_B^{e_B}$.
+      \item \textbf{Ізогенії:}
+          \item Аліса обчислює ізогенію $\phi_A: E_0 \to E_A = E_0 / G_A$.
+          \item Боб обчислює ізогенію $\phi_B: E_0 \to E_B = E_0 / G_B$.
+      \item \textbf{Обмін:} Вони обмінюються інформацією, яка дозволяє кожному обчислити образ секретної підгрупи іншого учасника на своїй кривій.
+      \item \textbf{Спільний секрет:} Обидва обчислюють $j$-інваріант кривої $E_{AB} \cong E_0 / \langle G_A, G_B \rangle$. Завдяки властивостям ізогеній (комутативна діаграма), вони отримають однаковий результат: $j(\phi_B(E_A)) = j(\phi_A(E_B))$.
+  \end{itemize}
+  Далі розглянемо кроки детальніше.
+\end{frame}
+
+\subsection{Кроки Протоколу} % Додано підсекцію для кращої структури TOC
+
+\begin{frame}{Протокол SIDH: Крок 1 (Аліса)}
+  \frametitle{Протокол SIDH: Крок 1 (Секрет та дія Аліси)}
+  \begin{enumerate}
+    \item \textbf{Вибір секрету:} Аліса обирає два випадкових цілих числа $s_A, r_A \pmod{l_A^{e_A}}$ (не обидва нулі, часто $r_A=1$ і $s_A$ - секрет).
+    \item \textbf{Формування ядра:} Аліса формує секретну точку (генератор ядра):
+      $$ S_A = P_A + [s_A] Q_A \in E_0[l_A^{e_A}] $$
+      Її секретна підгрупа $G_A = \langle S_A \rangle$. Це циклічна підгрупа порядку $l_A^{e_A}$.
+      \textit{(Примітка: часто використовують випадкову точку $P_A + [s_A] Q_A$ як генератор)}
+    \item \textbf{Обчислення ізогенії:} Аліса обчислює (за допомогою формул Велу) ізогенію $\phi_A: E_0 \to E_A = E_0 / G_A$ гладкого порядку $deg(\phi_A)=l_A^{e_A}$.
+    \item \textbf{Обчислення образів точок Боба:} Аліса обчислює образи базисних точок Боба під дією своєї ізогенії:
+      $ \phi_A(P_B) \quad \text{та} \quad \phi_A(Q_B) $.
+      Ці точки лежать на кривій $E_A$ і мають порядок $l_B^{e_B}$.
+    \item \textbf{Надсилання даних:} Аліса надсилає Бобу публічний ключ: $(j(E_A), \phi_A(P_B), \phi_A(Q_B))$.
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Протокол SIDH: Крок 2 (Боб)}
+  \frametitle{Протокол SIDH: Крок 2 (Секрет та дія Боба)}
+  Аналогічно до Аліси:
+  \begin{enumerate}
+    \item \textbf{Вибір секрету:} Боб обирає два випадкових цілих числа $s_B, r_B \pmod{l_B^{e_B}}$ (не обидва нулі, часто $r_B=1$ і $s_B$ - секрет).
+    \item \textbf{Формування ядра:} Боб формує секретну точку (генератор ядра):
+      $$ S_B = P_B + [s_B] Q_B \in E_0[l_B^{e_B}] $$
+      Його секретна підгрупа $G_B = \langle S_B \rangle$ - циклічна порядку $l_B^{e_B}$.
+    \item \textbf{Обчислення ізогенії:} Боб обчислює ізогенію $\phi_B: E_0 \to E_B = E_0 / G_B$ гладкого порядку $deg(\phi_B)=l_B^{e_B}$.
+    \item \textbf{Обчислення образів точок Аліси:} Боб обчислює образи базисних точок Аліси:
+      $$ \phi_B(P_A) \quad \text{та} \quad \phi_B(Q_A) $$
+      Ці точки лежать на кривій $E_B$ і мають порядок $l_A^{e_A}$.
+    \item \textbf{Надсилання даних:} Боб надсилає Алісі публічний ключ: $(j(E_B), \phi_B(P_A), \phi_B(Q_A))$.
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Протокол SIDH: Крок 3 (Обчислення секрету Алісою)}
+  \frametitle{Протокол SIDH: Крок 3 (Обчислення секрету Алісою)}
+  Аліса отримала $(E_B, \phi_B(P_A), \phi_B(Q_A))$ від Боба.
+  \begin{enumerate}
+    \item \textbf{Обчислення образу свого ядра на кривій Боба:} Аліса використовує свій секрет $s_A$ (або $S_A = P_A + [s_A] Q_A$) та отримані точки $\phi_B(P_A), \phi_B(Q_A)$, щоб обчислити точку на кривій $E_B$:
+    $$ S'_A = \phi_B(S_A) = \phi_B(P_A + [s_A] Q_A) = \phi_B(P_A) + [s_A] \phi_B(Q_A) $$
+    Ця точка $S'_A$ генерує підгрупу $\phi_B(G_A)$ порядку $l_A^{e_A}$ на кривій $E_B$.
+    \item \textbf{Обчислення фінальної ізогенії:} Аліса обчислює ізогенію $\psi_A: E_B \to E_{BA}$, ядром якої є $\langle S'_A \rangle = \phi_B(G_A)$:
+    $$ E_{BA} = E_B / \langle S'_A \rangle = E_B / \phi_B(G_A) $$
+    \item \textbf{Спільний секрет:} Аліса обчислює $j$-інваріант кривої $E_{BA}$.
+    $$ k_A = j(E_{BA}) $$
+    Це її версія спільного секрету.
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Протокол SIDH: Крок 4 (Обчислення секрету Бобом)}
+  \frametitle{Протокол SIDH: Крок 4 (Обчислення секрету Бобом)}
+  Боб отримав $(E_A, \phi_A(P_B), \phi_A(Q_B))$ від Аліси.
+  \begin{enumerate}
+    \item \textbf{Обчислення образу свого ядра на кривій Аліси:} Боб використовує свій секрет $s_B$ (або $S_B = P_B + [s_B] Q_B$) та отримані точки $\phi_A(P_B), \phi_A(Q_B)$, щоб обчислити точку на кривій $E_A$:
+    $$ S'_B = \phi_A(S_B) = \phi_A(P_B + [s_B] Q_B) = \phi_A(P_B) + [s_B] \phi_A(Q_B) $$
+    Ця точка $S'_B$ генерує підгрупу $\phi_A(G_B)$ порядку $l_B^{e_B}$ на кривій $E_A$.
+    \item \textbf{Обчислення фінальної ізогенії:} Боб обчислює ізогенію $\psi_B: E_A \to E_{AB}$, ядром якої є $\langle S'_B \rangle = \phi_A(G_B)$:
+    $$ E_{AB} = E_A / \langle S'_B \rangle = E_A / \phi_A(G_B) $$
+    \item \textbf{Спільний секрет:} Боб обчислює $j$-інваріант кривої $E_{AB}$.
+    $$ k_B = j(E_{AB}) $$
+    Це його версія спільного секрету.
+  \end{enumerate}
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Протокол SIDH: Комутативність та Секрет}
+ \frametitle{Протокол SIDH: Комутативність та Спільний Секрет}
+ \begin{itemize}
+     \item \textbf{Ключова властивість:} Ізогенії $\phi_A$ та $\phi_B$ мають ядра з порядками, що є взаємно простими ($l_A^{e_A}$ та $l_B^{e_B}$). Це призводить до "комутативності" діаграми (з точністю до ізоморфізму):
+     $$ E_{BA} = E_B / \phi_B(G_A) \cong E_0 / \langle G_A, G_B \rangle $$
+     $$ E_{AB} = E_A / \phi_A(G_B) \cong E_0 / \langle G_A, G_B \rangle $$
+     Тому $E_{AB}$, $E_{BA}$ є ізоморфними над $\mathbb{F}_{p^2}$.
+     \item \textbf{Спільний секрет:} Ізоморфні криві мають однаковий $j$-інваріант. Отже, Аліса та Боб обчислюють спільний секрет:
+     $$ k_A = j(E_{BA}) = j(E_{AB}) = k_B $$
+     \item \textbf{Навіщо потрібні $\phi(P), \phi(Q)$?} Обчислення $\phi_A(P_B), \phi_A(Q_B)$ (і аналогічно для Боба) є критичним. Воно дозволяє стороні обчислити образ ядра іншої сторони на \textit{своїй} проміжній кривій ($E_A$ або $E_B$), не знаючи секретної ізогенії іншої сторони. Саме ці "додаткові точки" (auxiliary points) стали вектором атаки Кастрика-Декру.
+ \end{itemize}
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Протокол SIDH: Візуалізація (TikZ)}
+  \frametitle{Протокол SIDH: Візуалізація}
+
+  \begin{tikzpicture}[
+    scale=1,
+    node distance=2cm and 2.5cm,
+    curve/.style={draw, ellipse, minimum height=1cm, minimum width=1.5cm, align=center},
+    arrow/.style={-latex, thick},
+    label/.style={midway, inner sep=1pt, font=\footnotesize}
+  ]
+
+    % Nodes for curves
+    \node[curve] (E0) {$E_0$};
+    \node[curve, align=center, below left=of E0] (EA) {$E_A = E_0/G_A$};
+    \node[curve, align=center, below right=of E0] (EB) {$E_B = E_0/G_B$};
+    \node[curve, align=center, below right=of EA] (EAB) {$E_{AB} \cong E_{BA}$ \\ ($j(E_{AB})$ - секрет)};
+
+    % Arrows for isogenies
+    \path[arrow] (E0) edge node[label, left] {$\phi_A$ (секрет Аліси $G_A$)} (EA);
+    \path[arrow] (E0) edge node[label, right] {$\phi_B$ (секрет Боба $G_B$)} (EB);
+    \path[arrow] (EA) edge node[label, left] {$\psi_B$ (ядро $\phi_A(G_B)$)} (EAB);
+    \path[arrow] (EB) edge node[label, left] {$\psi_A$ (ядро $\phi_B(G_A)$)} (EAB);
+
+    % Annotations (optional)
+    \node[below=0.2cm of EA, text width=3cm, align=center, font=\footnotesize] {Аліса обчислює $E_A$ та $\phi_A(P_B), \phi_A(Q_B)$};
+    \node[below=0.2cm of EB, text width=3cm, align=center, font=\footnotesize] {Боб обчислює $E_B$ та $\phi_B(P_A), \phi_B(Q_A)$};
+    \node[above=0.8cm of EAB, text width=3cm, align=center, font=\footnotesize] {Аліса: обчислює $E_{BA}$ з $E_B$ і $S'_A=\phi_B(S_A)$. \\ Боб: обчислює $E_{AB}$ з $E_A$ і $S'_B=\phi_A(S_B)$.};
+
+  \end{tikzpicture}
+  
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Протокол SIKE}
+  \frametitle{Протокол SIKE (Supersingular Isogeny Key Encapsulation)}
+  \begin{itemize}
+    \item Механізм інкапсуляції ключів (KEM), побудований на основі SIDH.
+    \item Був кандидатом у 3-му та фінальному (4-му) раундах конкурсу постквантової криптографії NIST PQC.
+    \item Використовував перетворення типу Фудзісакі-Окамото для перетворення схеми обміну ключами SIDH (типу PKE) на безпечний KEM (стійкий до атак типу CCA2).
+    \item \textbf{Основна ідея KEM:}
+      \begin{itemize}
+        \item \textbf{KeyGen:} Генерує пару ключів (відкритий $pk$, секретний $sk$), аналогічно до SIDH.
+        \item \textbf{Encaps:} Бере відкритий ключ $pk$ отримувача. Генерує випадковий спільний секрет $K$ та його інкапсуляцію (шифротекст) $C$. Надсилає $C$ отримувачу.
+        \item \textbf{Decaps:} Отримувач використовує свій секретний ключ $sk$ та отриманий шифротекст $C$ для відновлення того ж спільного секрету $K$.
+      \end{itemize}
+    \item Розглядався як один із найперспективніших кандидатів PQC через малі розміри ключів.
+    \item Став вразливим через атаку на базовий протокол SIDH.
+  \end{itemize}
+\end{frame}
+
+
+% =============================================
+\section{Атака на SIDH та сучасні алгоритми}
+% =============================================
+
+\begin{frame}{Атака на SIDH/SIKE (2022)}
+  \frametitle{Атака на SIDH/SIKE (Castryck-Decru, 2022)}
+  \begin{itemize}
+    \item У серпні 2022 року Воутер Кастрик (Wouter Castryck) та Тома Декру (Thomas Decru) представили ефективну атаку на протокол SIDH та, як наслідок, на SIKE.
+    \item \textbf{Ключовий момент:} Атака використовує саме ті \textit{додаткові точки кручення} ($\phi_A(P_B), \phi_A(Q_B)$ та $\phi_B(P_A), \phi_B(Q_A)$), які передаються в протоколі SIDH.
+    \item \textbf{Ідея атаки (дуже спрощено):}
+      \begin{itemize}
+        \item Використовує зв'язок між ізогеніями еліптичних кривих та ізогеніями абелевих многовидів вищих розмірностей (зокрема, поверхнями Куммера, пов'язаними з якобіанами гіпереліптичних кривих роду 2).
+        \item Знання образів додаткових точок дозволяє ефективно відновити інформацію про секретну ізогенію (її ядро, або еквівалентно, секретний скаляр $s_A$ чи $s_B$).
+        \item Алгоритм використовує так звані ізогенії Рішело (Richelot isogenies) між якобіанами кривих роду 2, які можна побудувати за допомогою інформації з SIDH.
+      \end{itemize}
+    \item \textbf{Результат:} Атака дозволяє відновити секретний ключ Аліси або Боба за поліноміальний час на класичному комп'ютері.
+    \item Це повністю зламало безпеку SIDH та SIKE у їхній відомій формі.
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Наслідки атаки та сучасний стан}
+  \frametitle{Наслідки атаки та сучасний стан}
+  \begin{itemize}
+    \item \textbf{SIKE відкликано:} NIST відкликав SIKE зі списку кандидатів PQC для стандартизації невдовзі після публікації атаки.
+    \item \textbf{Пошук нових підходів:} Атака стимулювала пошук нових криптографічних схем на основі ізогеній, які б не використовували додаткові точки кручення у такий самий спосіб, або базувалися б на інших варіантах задачі ізогеній (наприклад, CSIDH, яке не використовує $\mathbb{F}_{p^2}$ та додаткові точки).
+    \item \textbf{Активна область досліджень:} Криптографія на основі ізогеній залишається активною, хоча й складнішою, областю досліджень.
+    \item \textbf{Альтернативні задачі:} Розглядаються схеми, що базуються на:
+      \begin{itemize}
+        \item Задачі знаходження шляху в графі суперсингулярних ізогеній (без додаткових точок, як у CSIDH).
+        \item Задачі обчислення ендоморфного кільця.
+        \item Інших варіантах задачі обчислення ізогеній.
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+% ---------------------------------------------
+
+\begin{frame}{Сучасні алгоритми: SKISign}
+  \frametitle{Сучасні алгоритми: SKISign та SQISign}
+  \begin{itemize}
+    \item \textbf{SKISign (Small Key Isogeny Signature) / SQISign (Short Quaternion Isogeny Signature):} Схеми цифрового підпису на основі ізогеній. SQISign є новішою та ефективнішою версією.
+    \item \textbf{Інша базова задача:} Безпека базується на складності задачі знаходження ізогенійного шляху між двома заданими суперсингулярними кривими (Supersingular Isogeny Path Problem) та пов'язаних задачах у графі ізогеній. SQISign також використовує структуру кватерніонних алгебр.
+    \item \textbf{Не використовує SIDH-структуру:} Схеми побудовані інакше і не використовують обмін додатковими точками, як у SIDH. Тому атака Кастрика-Декру на них безпосередньо не застосовується.
+    \item \textbf{Ідея підпису (GPS/Fiat-Shamir):} Схема використовує підхід типу доказу з нульовим розголошенням (перетворений на підпис за допомогою Fiat-Shamir), де доказом знання секрету (секретного шляху ізогеній) є здатність відповісти на криптографічний виклик.
+    \item \textbf{Переваги:} Постквантова стійкість, дуже малі розміри підписів (особливо SQISign) порівняно з іншими PQC підписами.
+    \item \textbf{Недоліки:} Досить повільна генерація та перевірка підпису. Параметри та безпека все ще потребують ретельного аналізу.
+    \item SQISign розглядається як один із найперспективніших напрямків у постквантових підписах на основі ізогеній.
+  \end{itemize}
+\end{frame}
+
+% =============================================
+\section{Висновки}
+% =============================================
+
+\begin{frame}{Висновки}
+  \frametitle{Висновки}
+  \begin{itemize}
+    \item Ізогенії є фундаментальними об'єктами в теорії еліптичних кривих, що описують структурні зв'язки між ними.
+    \item Формули Велу дозволяють явно обчислювати ізогенії за їхніми ядрами.
+    \item Складність обчислення ізогеній (особливо між суперсингулярними кривими) стала основою для розробки постквантових криптосистем.
+    \item Протоколи SIDH/SIKE були перспективними, але виявилися вразливими через використання додаткової інформації (точок кручення).
+    \item Атака 2022 року стала важливим уроком для спільноти PQC.
+    \item Дослідження продовжуються, фокусуючись на альтернативних задачах та конструкціях (CSIDH, SQISign), що демонструє життєздатність напрямку, хоч і з новими викликами.
+  \end{itemize}
+\end{frame}
+
+  \end{darkframes}
+
+
+
+
+\end{document}
